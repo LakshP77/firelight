@@ -7,6 +7,7 @@ import { X } from "lucide-react";
 import { countyDetails } from "@/data/countyDetails";
 import { getForecastDetail } from "@/lib/forecast";
 import type { ForecastWindow, WildfireLocation } from "@/types/wildfire";
+import { getFireStationsForLocation } from "@/services/fireStationService";
 import CountyStatisticsSection from "./details/CountyStatisticsSection";
 import FireStationsSection from "./details/FireStationsSection";
 import HistoricalFiresSection from "./details/HistoricalFiresSection";
@@ -29,6 +30,7 @@ export default function CountyDetailsDrawer({ isOpen, location, forecastWindow, 
   const drawerRef = useRef<HTMLElement>(null);
   const forecast = location.forecasts[forecastWindow];
   const details = countyDetails[location.id];
+  const nearbyStations = getFireStationsForLocation(location);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -89,7 +91,7 @@ export default function CountyDetailsDrawer({ isOpen, location, forecastWindow, 
           {details ? <>
             <HistoricalFiresSection locationId={location.id} />
             <CountyStatisticsSection statistics={details.statistics} />
-            <FireStationsSection stations={details.fireStations} />
+            <FireStationsSection stations={nearbyStations} />
             <WeatherHistorySection points={details.weatherHistory} />
           </> : <p className="rounded-lg border border-white/[0.08] p-4 text-xs text-white/45">Detailed county context is not available for this location.</p>}
           <PredictionTimelineSection location={location} forecastWindow={forecastWindow} onChangeForecast={onChangeForecast} />

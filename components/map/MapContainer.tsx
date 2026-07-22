@@ -21,6 +21,7 @@ import type {
   MapToolbarPanel,
 } from "./MapToolbar";
 import WeatherOverlay from "./WeatherOverlay";
+import FireStationLayer from "./FireStationLayer";
 
 type MapContainerProps = {
   locations: WildfireLocation[];
@@ -59,6 +60,7 @@ export default function MapContainer({
     riskRadius: true,
     historicalFires: false,
     weatherConditions: false,
+    fireStations: false,
   });
 
   const closePanel = useCallback(() => setActivePanel(null), []);
@@ -163,6 +165,10 @@ export default function MapContainer({
               selectedLocation={selectedLocation}
               forecastWindow={forecastWindow}
             />
+          )}
+
+          {layers.fireStations && (
+            <FireStationLayer selectedLocation={selectedLocation} />
           )}
         </LeafletMap>
 

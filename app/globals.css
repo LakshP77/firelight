@@ -178,6 +178,35 @@ input {
   color: rgb(255 255 255 / 42%);
 }
 
+.fire-station-marker {
+  background: transparent;
+  border: 0;
+}
+
+.fire-station-icon {
+  display: flex;
+  width: 28px;
+  height: 28px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgb(255 255 255 / 20%);
+  border-radius: 7px;
+  background: rgb(10 15 20 / 94%);
+  box-shadow: 0 5px 14px rgb(0 0 0 / 42%);
+  color: rgb(203 213 225 / 78%);
+}
+
+.fire-station-icon svg {
+  width: 14px;
+  height: 14px;
+}
+
+.fire-station-icon-nearest {
+  border-color: rgb(249 115 22 / 70%);
+  box-shadow: 0 5px 16px rgb(0 0 0 / 48%), 0 0 0 2px rgb(249 115 22 / 18%);
+  color: #fb923c;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

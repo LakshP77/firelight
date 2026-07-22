@@ -25,6 +25,7 @@ export type LayerVisibility = {
   riskRadius: boolean;
   historicalFires: boolean;
   weatherConditions: boolean;
+  fireStations: boolean;
 };
 
 export type MapToolbarPanel = "layers" | "time" | null;

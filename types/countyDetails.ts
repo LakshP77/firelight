@@ -1,11 +1,3 @@
-export type FireStation = {
-  id: string;
-  name: string;
-  distanceMiles: number;
-  direction: string;
-  serviceArea: string;
-};
-
 export type WeatherHistoryPoint = {
   date: string;
   temperature: number;
@@ -25,6 +17,5 @@ export type CountyStatistics = {
 export type CountyDetails = {
   locationId: string;
   statistics: CountyStatistics;
-  fireStations: FireStation[];
   weatherHistory: WeatherHistoryPoint[];
 };

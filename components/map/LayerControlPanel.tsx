@@ -14,6 +14,7 @@ const layerOptions: Array<{
   { key: "riskRadius", label: "Risk radius" },
   { key: "historicalFires", label: "Historical fires" },
   { key: "weatherConditions", label: "Weather conditions" },
+  { key: "fireStations", label: "Fire stations" },
 ];
 
 export default function LayerControlPanel({
