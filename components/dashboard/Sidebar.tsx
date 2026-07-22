@@ -1,10 +1,13 @@
 import type { ForecastWindow, WildfireLocation } from "@/types/wildfire";
 import { getForecastDetail } from "@/lib/forecast";
+import { createRiskExplanations } from "@/utils/createRiskExplanations";
+import RiskTrendChart from "./RiskTrendChart";
 import {
   Building2,
   Droplets,
   Flame,
   Gauge,
+  CircleHelp,
   Info,
   Leaf,
   MapPin,
@@ -18,10 +21,19 @@ import type { LucideIcon } from "lucide-react";
 type SidebarProps = {
   location: WildfireLocation;
   forecastWindow: ForecastWindow;
+  onChangeForecast: (window: ForecastWindow) => void;
 };
 
-export default function Sidebar({ location, forecastWindow }: SidebarProps) {
+export default function Sidebar({
+  location,
+  forecastWindow,
+  onChangeForecast,
+}: SidebarProps) {
   const forecast = location.forecasts[forecastWindow];
+  const riskExplanations = createRiskExplanations(
+    forecast,
+    location.droughtLevel,
+  );
 
   return (
     <aside className="overflow-hidden rounded-xl border border-white/[0.08] bg-[#090e13] shadow-[0_18px_55px_rgba(0,0,0,0.2)]">
@@ -64,6 +76,12 @@ export default function Sidebar({ location, forecastWindow }: SidebarProps) {
           </div>
         </div>
 
+        <RiskTrendChart
+          location={location}
+          forecastWindow={forecastWindow}
+          onChangeForecast={onChangeForecast}
+        />
+
         <SidebarSection title="Top Contributing Factors">
           <div className="space-y-3 text-sm text-white/65">
             <ConditionRow icon={Droplets} label="Low Humidity" value={`${forecast.humidity}%`} />
@@ -72,6 +90,24 @@ export default function Sidebar({ location, forecastWindow }: SidebarProps) {
             <ConditionRow icon={Thermometer} label="High Temperature" value={`${forecast.temperature}°F`} />
           </div>
         </SidebarSection>
+
+        <section className="rounded-lg border border-white/[0.08] bg-white/[0.02] p-4">
+          <h3 className="flex items-center gap-2 text-sm font-semibold text-white/90">
+            <CircleHelp aria-hidden="true" className="h-4 w-4 text-orange-500" />
+            Why this risk?
+          </h3>
+
+          <ul className="mt-3 space-y-2.5 pl-4 text-xs leading-5 text-white/65 marker:text-orange-500/70">
+            {riskExplanations.map((explanation) => (
+              <li key={explanation.id}>{explanation.text}</li>
+            ))}
+          </ul>
+
+          <p className="mt-3 border-t border-white/[0.07] pt-3 text-[11px] leading-4 text-white/35">
+            Risk estimates are based on available environmental data and may
+            change as conditions update.
+          </p>
+        </section>
 
         <SidebarSection
           title={

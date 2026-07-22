@@ -36,6 +36,7 @@ export default function Dashboard() {
         <Sidebar
           location={selectedLocation}
           forecastWindow={forecastWindow}
+          onChangeForecast={setForecastWindow}
         />
       </section>
     </>
