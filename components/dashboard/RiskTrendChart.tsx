@@ -169,7 +169,7 @@ export default function RiskTrendChart({
       </div>
 
       <div
-        className="mt-1 grid grid-cols-5 gap-1"
+        className="mt-1 grid min-w-0 grid-cols-5 gap-1"
         aria-label="Select a wildfire risk forecast point"
       >
         {chartData.map((point) => {
@@ -181,10 +181,10 @@ export default function RiskTrendChart({
               type="button"
               aria-pressed={isActive}
               aria-label={`${point.label}: risk score ${point.score}, ${point.riskLevel} risk`}
-              className={`rounded border px-1 py-1 text-center text-[10px] font-semibold transition-colors motion-reduce:transition-none ${
+              className={`flex h-7 min-w-0 items-center justify-center rounded-md border px-0.5 py-0 text-center text-xs font-medium leading-none transition-colors motion-reduce:transition-none ${
                 isActive
-                  ? "border-slate-400 bg-slate-700 text-white"
-                  : "border-transparent text-slate-400 hover:border-slate-700 hover:bg-slate-800/70 hover:text-slate-200"
+                  ? "border-white/15 bg-white/[0.08] text-white/90"
+                  : "border-transparent text-white/45 hover:border-white/[0.08] hover:bg-white/[0.04] hover:text-white/75"
               }`}
               onClick={() => onChangeForecast(point.window)}
               onFocus={() => setInspectedWindow(point.window)}
