@@ -1,16 +1,21 @@
 "use client";
 
-import { useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import type { WildfireLocation } from "@/types/wildfire";
 import MapFooterPanel from "@/components/dashboard/MapFooterPanel";
+import { historicalFires } from "@/data/historicalFires";
 import {
+  Circle,
   CircleMarker,
   MapContainer as LeafletMap,
   Popup,
   TileLayer,
   useMap,
 } from "react-leaflet";
+import HistoricalFireLayer from "./HistoricalFireLayer";
 import MapToolbar from "./MapToolbar";
+import type { LayerVisibility } from "./MapToolbar";
+import WeatherLabelLayer from "./WeatherLabelLayer";
 
 type MapContainerProps = {
   locations: WildfireLocation[];
@@ -55,6 +60,23 @@ export default function MapContainer({
   selectedLocation,
   onSelectLocation,
 }: MapContainerProps) {
+  const [isLayersOpen, setIsLayersOpen] = useState(false);
+  const [layers, setLayers] = useState<LayerVisibility>({
+    riskMarkers: true,
+    riskRadius: true,
+    historicalFires: false,
+    weatherConditions: false,
+  });
+
+  const closeLayers = useCallback(() => setIsLayersOpen(false), []);
+
+  function toggleLayer(layer: keyof LayerVisibility) {
+    setLayers((currentLayers) => ({
+      ...currentLayers,
+      [layer]: !currentLayers[layer],
+    }));
+  }
+
   return (
     <div className="overflow-hidden rounded-xl border border-white/10 bg-[#10161c]">
       <div className="relative h-[700px]">
@@ -71,36 +93,62 @@ export default function MapContainer({
 
           <FlyToSelectedLocation location={selectedLocation} />
 
-          {locations.map((location) => {
-            const isSelected = selectedLocation.id === location.id;
-
-            return (
-              <CircleMarker
+          {layers.riskRadius &&
+            locations.map((location) => (
+              <Circle
                 key={location.id}
                 center={[location.latitude, location.longitude]}
-                radius={isSelected ? 15 : 11}
+                radius={location.riskScore * 250}
+                interactive={false}
                 pathOptions={{
-                  color: "#ffffff",
-                  weight: isSelected ? 4 : 2,
+                  color: getRiskColor(location.riskScore),
+                  weight: 1,
+                  opacity: 0.35,
                   fillColor: getRiskColor(location.riskScore),
-                  fillOpacity: 0.9,
+                  fillOpacity: 0.08,
                 }}
-                eventHandlers={{
-                  click: () => onSelectLocation(location),
-                }}
-              >
-                <Popup>
-                  <div>
-                    <strong>{location.name}</strong>
-                    <br />
-                    {location.riskLevel} Risk
-                    <br />
-                    Score: {location.riskScore}/100
-                  </div>
-                </Popup>
-              </CircleMarker>
-            );
-          })}
+              />
+            ))}
+
+          {layers.riskMarkers &&
+            locations.map((location) => {
+              const isSelected = selectedLocation.id === location.id;
+
+              return (
+                <CircleMarker
+                  key={location.id}
+                  center={[location.latitude, location.longitude]}
+                  radius={isSelected ? 15 : 11}
+                  pathOptions={{
+                    color: "#ffffff",
+                    weight: isSelected ? 4 : 2,
+                    fillColor: getRiskColor(location.riskScore),
+                    fillOpacity: 0.9,
+                  }}
+                  eventHandlers={{
+                    click: () => onSelectLocation(location),
+                  }}
+                >
+                  <Popup>
+                    <div>
+                      <strong>{location.name}</strong>
+                      <br />
+                      {location.riskLevel} Risk
+                      <br />
+                      Score: {location.riskScore}/100
+                    </div>
+                  </Popup>
+                </CircleMarker>
+              );
+            })}
+
+          {layers.historicalFires && (
+            <HistoricalFireLayer fires={historicalFires} />
+          )}
+
+          {layers.weatherConditions && (
+            <WeatherLabelLayer locations={locations} />
+          )}
         </LeafletMap>
 
         <div className="pointer-events-none absolute left-5 top-5 z-[500] rounded-lg border border-white/10 bg-black/80 p-4 backdrop-blur">
@@ -113,7 +161,13 @@ export default function MapContainer({
           </p>
         </div>
 
-        <MapToolbar />
+        <MapToolbar
+          isLayersOpen={isLayersOpen}
+          layers={layers}
+          onToggleLayers={() => setIsLayersOpen((isOpen) => !isOpen)}
+          onToggleLayer={toggleLayer}
+          onCloseLayers={closeLayers}
+        />
       </div>
 
       <MapFooterPanel />

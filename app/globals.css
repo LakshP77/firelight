@@ -19,3 +19,17 @@ button,
 input {
   font: inherit;
 }
+
+.leaflet-tooltip.weather-map-label {
+  border: 1px solid rgb(255 255 255 / 12%);
+  background: rgb(11 16 21 / 88%);
+  color: rgb(255 255 255 / 72%);
+  box-shadow: none;
+  font-size: 11px;
+  line-height: 1;
+  padding: 5px 7px;
+}
+
+.leaflet-tooltip-top.weather-map-label::before {
+  border-top-color: rgb(11 16 21 / 88%);
+}
