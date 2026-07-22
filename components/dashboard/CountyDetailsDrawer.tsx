@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import type { RefObject } from "react";
+import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 import { countyDetails } from "@/data/countyDetails";
 import { getForecastDetail } from "@/lib/forecast";
@@ -63,10 +64,10 @@ export default function CountyDetailsDrawer({ isOpen, location, forecastWindow, 
 
   if (!isOpen) return null;
 
-  return (
-    <div className="fixed inset-0 z-[100]">
-      <div aria-hidden="true" onMouseDown={onClose} className="absolute inset-0 bg-black/65 motion-safe:animate-[drawer-fade-in_180ms_ease-out]" />
-      <aside ref={drawerRef} role="dialog" aria-modal="true" aria-labelledby="county-details-title" className="absolute inset-y-0 right-0 flex w-full max-w-[580px] flex-col border-l border-white/[0.1] bg-[#080d12] shadow-[-24px_0_70px_rgba(0,0,0,0.5)] motion-safe:animate-[drawer-slide-in_200ms_ease-out]">
+  return createPortal(
+    <div className="fixed inset-0 z-[9000]">
+      <div aria-hidden="true" onMouseDown={onClose} className="absolute inset-0 z-[9000] bg-black/65 motion-safe:animate-[drawer-fade-in_180ms_ease-out]" />
+      <aside ref={drawerRef} role="dialog" aria-modal="true" aria-labelledby="county-details-title" className="absolute inset-y-0 right-0 z-[9010] flex w-full max-w-[580px] flex-col border-l border-white/[0.1] bg-[#080d12] shadow-[-24px_0_70px_rgba(0,0,0,0.5)] motion-safe:animate-[drawer-slide-in_200ms_ease-out]">
         <header className="shrink-0 border-b border-white/[0.08] bg-[#080d12]/95 px-5 py-4 sm:px-6">
           <div className="flex items-start justify-between gap-4">
             <div className="min-w-0">
@@ -95,7 +96,8 @@ export default function CountyDetailsDrawer({ isOpen, location, forecastWindow, 
           <OperationalNotesSection locationId={location.id} />
         </div>
       </aside>
-    </div>
+    </div>,
+    document.body,
   );
 }
 
