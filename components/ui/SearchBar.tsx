@@ -3,6 +3,7 @@
 import { useState } from "react";
 import type { KeyboardEvent } from "react";
 import type { WildfireLocation } from "@/types/wildfire";
+import { MapPin, Search } from "lucide-react";
 
 type SearchBarProps = {
   locations: WildfireLocation[];
@@ -44,7 +45,11 @@ export default function SearchBar({
   }
 
   return (
-    <div className="relative w-full max-w-xl px-10">
+    <div className="order-3 mx-auto w-full max-w-[560px] px-0 md:order-none md:px-4 lg:px-8">
+      <Search
+        aria-hidden="true"
+        className="pointer-events-none absolute left-4 top-1/2 z-10 h-5 w-5 -translate-y-1/2 text-white/45 md:left-8 lg:left-12"
+      />
       <input
         type="text"
         value={query}
@@ -65,13 +70,13 @@ export default function SearchBar({
         }}
         onKeyDown={handleKeyDown}
         placeholder="Search location, city, ZIP, or address"
-        className="w-full rounded-lg border border-white/15 bg-white/5 px-4 py-3 text-sm outline-none placeholder:text-white/40 focus:border-orange-500"
+        className="h-12 w-full rounded-lg border border-white/[0.12] bg-[#0b1015] pl-11 pr-4 text-sm text-white shadow-inner outline-none transition placeholder:text-white/40 hover:border-white/20 focus:border-orange-500/80 focus:ring-2 focus:ring-orange-500/10"
       />
 
       {isOpen && normalizedQuery && (
         <div
           id="location-search-results"
-          className="absolute left-10 right-10 top-full z-[1000] mt-2 overflow-hidden rounded-lg border border-white/15 bg-[#0b1015] shadow-xl"
+          className="absolute left-0 right-0 top-full z-[1000] mt-2 overflow-hidden rounded-lg border border-white/[0.12] bg-[#0b1015] p-1 shadow-2xl md:left-4 md:right-4 lg:left-8 lg:right-8"
         >
           {matchingLocations.length > 0 ? (
             matchingLocations.map((location) => (
@@ -79,8 +84,9 @@ export default function SearchBar({
                 key={location.id}
                 type="button"
                 onClick={() => selectLocation(location)}
-                className="block w-full px-4 py-3 text-left text-sm text-white/80 transition hover:bg-white/10 focus:bg-white/10 focus:outline-none"
+                className="flex w-full items-center gap-2 rounded-md px-3 py-2.5 text-left text-sm text-white/75 transition hover:bg-white/[0.06] hover:text-white focus:bg-white/[0.08] focus:outline-none"
               >
+                <MapPin aria-hidden="true" className="h-4 w-4 text-orange-500" />
                 {location.name}
               </button>
             ))

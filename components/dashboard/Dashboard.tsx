@@ -22,7 +22,7 @@ export default function Dashboard() {
         onSelectLocation={setSelectedLocation}
       />
 
-      <section className="grid min-h-[calc(100vh-80px)] grid-cols-[minmax(0,1fr)_380px] gap-4 p-4">
+      <section className="grid min-h-[calc(100vh-80px)] grid-cols-1 gap-3 p-3 xl:grid-cols-[minmax(0,1fr)_380px] xl:gap-4 xl:p-4">
         <MapContainer
           locations={mockLocations}
           selectedLocation={selectedLocation}
