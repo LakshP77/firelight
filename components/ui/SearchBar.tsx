@@ -12,6 +12,25 @@ type SearchBarProps = {
 
 const MAX_RESULTS = 5;
 
+function getMatchRank(name: string, normalizedQuery: string) {
+  const normalizedName = name.trim().toLowerCase();
+
+  if (normalizedName === normalizedQuery) {
+    return 0;
+  }
+
+  if (normalizedName.startsWith(normalizedQuery)) {
+    return 1;
+  }
+
+  const words = normalizedName.split(/[\s,]+/).filter(Boolean);
+  if (words.some((word) => word.startsWith(normalizedQuery))) {
+    return 2;
+  }
+
+  return 3;
+}
+
 export default function SearchBar({
   locations,
   onSelectLocation,
@@ -23,11 +42,31 @@ export default function SearchBar({
   const normalizedQuery = query.trim().toLowerCase();
   const matchingLocations = normalizedQuery
     ? locations
-        .filter((location) =>
-          location.name.toLowerCase().includes(normalizedQuery),
+        .map((location, originalIndex) => ({
+          location,
+          originalIndex,
+          normalizedName: location.name.trim().toLowerCase(),
+        }))
+        .filter(({ normalizedName }) =>
+          normalizedName.includes(normalizedQuery),
+        )
+        .map(({ location, originalIndex }) => ({
+          location,
+          originalIndex,
+          rank: getMatchRank(location.name, normalizedQuery),
+        }))
+        .sort(
+          (first, second) =>
+            first.rank - second.rank ||
+            first.originalIndex - second.originalIndex,
         )
         .slice(0, MAX_RESULTS)
+        .map(({ location }) => location)
     : [];
+  const visibleActiveIndex = Math.min(
+    activeIndex,
+    Math.max(matchingLocations.length - 1, 0),
+  );
 
   useEffect(() => {
     function handlePointerDown(event: PointerEvent) {
@@ -70,9 +109,13 @@ export default function SearchBar({
       );
     }
 
-    if (event.key === "Enter" && matchingLocations[activeIndex]) {
+    if (
+      event.key === "Enter" &&
+      isOpen &&
+      matchingLocations[visibleActiveIndex]
+    ) {
       event.preventDefault();
-      selectLocation(matchingLocations[activeIndex]);
+      selectLocation(matchingLocations[visibleActiveIndex]);
     }
 
     if (event.key === "Escape") {
@@ -99,8 +142,8 @@ export default function SearchBar({
         aria-controls="location-search-results"
         aria-autocomplete="list"
         aria-activedescendant={
-          isOpen && matchingLocations[activeIndex]
-            ? `location-search-option-${matchingLocations[activeIndex].id}`
+          isOpen && matchingLocations[visibleActiveIndex]
+            ? `location-search-option-${matchingLocations[visibleActiveIndex].id}`
             : undefined
         }
         autoComplete="off"
@@ -134,12 +177,12 @@ export default function SearchBar({
                 id={`location-search-option-${location.id}`}
                 type="button"
                 role="option"
-                aria-selected={index === activeIndex}
+                aria-selected={index === visibleActiveIndex}
                 onClick={() => selectLocation(location)}
                 onFocus={() => setActiveIndex(index)}
                 onMouseEnter={() => setActiveIndex(index)}
                 className={`flex w-full items-center gap-2 rounded-md px-3 py-2.5 text-left text-sm transition focus:outline-none ${
-                  index === activeIndex
+                  index === visibleActiveIndex
                     ? "bg-orange-500/10 text-white"
                     : "text-white/70 hover:bg-white/[0.06] hover:text-white"
                 }`}
