@@ -1,4 +1,15 @@
-export default function Navbar() {
+import type { WildfireLocation } from "@/types/wildfire";
+import SearchBar from "@/components/ui/SearchBar";
+
+type NavbarProps = {
+  locations: WildfireLocation[];
+  onSelectLocation: (location: WildfireLocation) => void;
+};
+
+export default function Navbar({
+  locations,
+  onSelectLocation,
+}: NavbarProps) {
   return (
     <header className="flex h-20 items-center justify-between border-b border-white/10 px-8">
       <div>
@@ -8,13 +19,10 @@ export default function Navbar() {
         </p>
       </div>
 
-      <div className="w-full max-w-xl px-10">
-        <input
-          type="text"
-          placeholder="Search location, city, ZIP, or address"
-          className="w-full rounded-lg border border-white/15 bg-white/5 px-4 py-3 text-sm outline-none placeholder:text-white/40 focus:border-orange-500"
-        />
-      </div>
+      <SearchBar
+        locations={locations}
+        onSelectLocation={onSelectLocation}
+      />
 
       <nav className="flex items-center gap-6 text-sm">
         <button className="text-white/70 transition hover:text-white">

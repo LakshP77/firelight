@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import type { WildfireLocation } from "@/types/wildfire";
 import MapFooterPanel from "@/components/dashboard/MapFooterPanel";
 import {
@@ -7,6 +8,7 @@ import {
   MapContainer as LeafletMap,
   Popup,
   TileLayer,
+  useMap,
 } from "react-leaflet";
 import MapToolbar from "./MapToolbar";
 
@@ -32,6 +34,22 @@ function getRiskColor(score: number) {
   return "#22c55e";
 }
 
+function FlyToSelectedLocation({
+  location,
+}: {
+  location: WildfireLocation;
+}) {
+  const map = useMap();
+
+  useEffect(() => {
+    map.flyTo([location.latitude, location.longitude], 9, {
+      animate: true,
+    });
+  }, [location, map]);
+
+  return null;
+}
+
 export default function MapContainer({
   locations,
   selectedLocation,
@@ -50,6 +68,8 @@ export default function MapContainer({
             attribution="&copy; OpenStreetMap contributors &copy; CARTO"
             url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
           />
+
+          <FlyToSelectedLocation location={selectedLocation} />
 
           {locations.map((location) => {
             const isSelected = selectedLocation.id === location.id;
