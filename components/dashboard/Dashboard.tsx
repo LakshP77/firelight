@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import { mockLocations } from "@/data/mockLocations";
 import type { ForecastWindow, WildfireLocation } from "@/types/wildfire";
 import Navbar from "../layout/Navbar";
 import Sidebar from "./Sidebar";
+import CountyDetailsDrawer from "./CountyDetailsDrawer";
 
 const MapContainer = dynamic(() => import("../map/MapContainer"), {
   ssr: false,
@@ -16,6 +17,9 @@ export default function Dashboard() {
     useState<WildfireLocation>(mockLocations[0]);
   const [forecastWindow, setForecastWindow] =
     useState<ForecastWindow>("current");
+  const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+  const detailsTriggerRef = useRef<HTMLButtonElement>(null);
+  const closeDetails = useCallback(() => setIsDetailsOpen(false), []);
 
   return (
     <>
@@ -37,8 +41,19 @@ export default function Dashboard() {
           location={selectedLocation}
           forecastWindow={forecastWindow}
           onChangeForecast={setForecastWindow}
+          onOpenDetails={() => setIsDetailsOpen(true)}
+          detailsTriggerRef={detailsTriggerRef}
         />
       </section>
+
+      <CountyDetailsDrawer
+        isOpen={isDetailsOpen}
+        location={selectedLocation}
+        forecastWindow={forecastWindow}
+        onChangeForecast={setForecastWindow}
+        onClose={closeDetails}
+        triggerRef={detailsTriggerRef}
+      />
     </>
   );
 }

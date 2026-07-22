@@ -4,4 +4,7 @@ export type HistoricalFire = {
   latitude: number;
   longitude: number;
   year: number;
+  locationId?: string;
+  acresBurned?: number;
+  cause?: string;
 };

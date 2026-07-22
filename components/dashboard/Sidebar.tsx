@@ -3,6 +3,7 @@ import { getForecastDetail } from "@/lib/forecast";
 import { createRiskExplanations } from "@/utils/createRiskExplanations";
 import RiskTrendChart from "./RiskTrendChart";
 import {
+  ArrowRight,
   Building2,
   Droplets,
   Flame,
@@ -22,12 +23,16 @@ type SidebarProps = {
   location: WildfireLocation;
   forecastWindow: ForecastWindow;
   onChangeForecast: (window: ForecastWindow) => void;
+  onOpenDetails: () => void;
+  detailsTriggerRef: React.RefObject<HTMLButtonElement | null>;
 };
 
 export default function Sidebar({
   location,
   forecastWindow,
   onChangeForecast,
+  onOpenDetails,
+  detailsTriggerRef,
 }: SidebarProps) {
   const forecast = location.forecasts[forecastWindow];
   const riskExplanations = createRiskExplanations(
@@ -75,6 +80,16 @@ export default function Sidebar({
             </p>
           </div>
         </div>
+
+        <button
+          ref={detailsTriggerRef}
+          type="button"
+          onClick={onOpenDetails}
+          className="flex h-10 w-full items-center justify-center gap-2 rounded-lg border border-white/[0.1] bg-white/[0.015] text-xs font-semibold text-white/75 transition hover:border-white/[0.18] hover:bg-white/[0.04] hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-500"
+        >
+          View Full Details
+          <ArrowRight aria-hidden="true" className="h-4 w-4" />
+        </button>
 
         <RiskTrendChart
           location={location}

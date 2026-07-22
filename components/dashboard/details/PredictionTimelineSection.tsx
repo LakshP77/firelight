@@ -1,0 +1,7 @@
+import { FORECAST_OPTIONS } from "@/lib/forecast";
+import type { ForecastWindow, WildfireLocation } from "@/types/wildfire";
+import DetailSection from "./DetailSection";
+
+export default function PredictionTimelineSection({ location, forecastWindow, onChangeForecast }: { location: WildfireLocation; forecastWindow: ForecastWindow; onChangeForecast: (window: ForecastWindow) => void }) {
+  return <DetailSection title="Prediction Timeline"><div className="space-y-2">{FORECAST_OPTIONS.map((option) => { const forecast = location.forecasts[option.value]; const active = option.value === forecastWindow; return <button key={option.value} type="button" aria-pressed={active} onClick={() => onChangeForecast(option.value)} className={`grid w-full grid-cols-[52px_1fr_auto] items-center gap-3 rounded-md border px-3 py-2 text-left transition-colors focus-visible:outline-2 focus-visible:outline-orange-500 ${active ? "border-orange-500/30 bg-orange-500/[0.07]" : "border-white/[0.06] hover:bg-white/[0.03]"}`}><span className="text-xs font-semibold text-white/80">{option.label}</span><span className="text-[11px] text-white/45">{forecast.riskLevel} · {forecast.temperature}°F · {forecast.humidity}% RH · {forecast.windSpeed} mph</span><span className="text-right"><strong className="block text-sm text-white/85">{forecast.riskScore}</strong><small className="text-[9px] text-white/30">{forecast.modelConfidence}% conf.</small></span></button>; })}</div></DetailSection>;
+}
