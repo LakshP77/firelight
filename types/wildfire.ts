@@ -8,6 +8,7 @@ export type WildfireForecast = {
   temperature: number;
   humidity: number;
   windSpeed: number;
+  windDirection: number;
   vegetationDryness: number;
   modelConfidence: number;
 };

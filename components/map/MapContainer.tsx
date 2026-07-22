@@ -20,7 +20,7 @@ import type {
   LayerVisibility,
   MapToolbarPanel,
 } from "./MapToolbar";
-import WeatherLabelLayer from "./WeatherLabelLayer";
+import WeatherOverlay from "./WeatherOverlay";
 
 type MapContainerProps = {
   locations: WildfireLocation[];
@@ -158,8 +158,9 @@ export default function MapContainer({
           )}
 
           {layers.weatherConditions && (
-            <WeatherLabelLayer
+            <WeatherOverlay
               locations={locations}
+              selectedLocation={selectedLocation}
               forecastWindow={forecastWindow}
             />
           )}
