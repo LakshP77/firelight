@@ -1,9 +1,10 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import type { WildfireLocation } from "@/types/wildfire";
+import type { ForecastWindow, WildfireLocation } from "@/types/wildfire";
 import MapFooterPanel from "@/components/dashboard/MapFooterPanel";
 import { historicalFires } from "@/data/historicalFires";
+import { getRiskColor } from "@/lib/risk";
 import {
   Circle,
   CircleMarker,
@@ -15,30 +16,19 @@ import {
 } from "react-leaflet";
 import HistoricalFireLayer from "./HistoricalFireLayer";
 import MapToolbar from "./MapToolbar";
-import type { LayerVisibility } from "./MapToolbar";
+import type {
+  LayerVisibility,
+  MapToolbarPanel,
+} from "./MapToolbar";
 import WeatherLabelLayer from "./WeatherLabelLayer";
 
 type MapContainerProps = {
   locations: WildfireLocation[];
   selectedLocation: WildfireLocation;
+  forecastWindow: ForecastWindow;
   onSelectLocation: (location: WildfireLocation) => void;
+  onChangeForecast: (window: ForecastWindow) => void;
 };
-
-function getRiskColor(score: number) {
-  if (score >= 76) {
-    return "#ef4444";
-  }
-
-  if (score >= 51) {
-    return "#f97316";
-  }
-
-  if (score >= 26) {
-    return "#eab308";
-  }
-
-  return "#22c55e";
-}
 
 function FlyToSelectedLocation({
   location,
@@ -59,9 +49,11 @@ function FlyToSelectedLocation({
 export default function MapContainer({
   locations,
   selectedLocation,
+  forecastWindow,
   onSelectLocation,
+  onChangeForecast,
 }: MapContainerProps) {
-  const [isLayersOpen, setIsLayersOpen] = useState(false);
+  const [activePanel, setActivePanel] = useState<MapToolbarPanel>(null);
   const [layers, setLayers] = useState<LayerVisibility>({
     riskMarkers: true,
     riskRadius: true,
@@ -69,13 +61,19 @@ export default function MapContainer({
     weatherConditions: false,
   });
 
-  const closeLayers = useCallback(() => setIsLayersOpen(false), []);
+  const closePanel = useCallback(() => setActivePanel(null), []);
 
   function toggleLayer(layer: keyof LayerVisibility) {
     setLayers((currentLayers) => ({
       ...currentLayers,
       [layer]: !currentLayers[layer],
     }));
+  }
+
+  function togglePanel(panel: Exclude<MapToolbarPanel, null>) {
+    setActivePanel((currentPanel) =>
+      currentPanel === panel ? null : panel,
+    );
   }
 
   return (
@@ -98,25 +96,31 @@ export default function MapContainer({
           <FlyToSelectedLocation location={selectedLocation} />
 
           {layers.riskRadius &&
-            locations.map((location) => (
-              <Circle
-                key={location.id}
-                center={[location.latitude, location.longitude]}
-                radius={location.riskScore * 250}
-                interactive={false}
-                pathOptions={{
-                  color: getRiskColor(location.riskScore),
-                  weight: 1,
-                  opacity: 0.35,
-                  fillColor: getRiskColor(location.riskScore),
-                  fillOpacity: 0.1,
-                }}
-              />
-            ))}
+            locations.map((location) => {
+              const forecast = location.forecasts[forecastWindow];
+
+              return (
+                <Circle
+                  key={location.id}
+                  center={[location.latitude, location.longitude]}
+                  radius={forecast.riskScore * 250}
+                  interactive={false}
+                  pathOptions={{
+                    color: getRiskColor(forecast.riskScore),
+                    weight: 1,
+                    opacity: 0.35,
+                    fillColor: getRiskColor(forecast.riskScore),
+                    fillOpacity: 0.1,
+                    className: "risk-radius",
+                  }}
+                />
+              );
+            })}
 
           {layers.riskMarkers &&
             locations.map((location) => {
               const isSelected = selectedLocation.id === location.id;
+              const forecast = location.forecasts[forecastWindow];
 
               return (
                 <CircleMarker
@@ -126,7 +130,7 @@ export default function MapContainer({
                   pathOptions={{
                     color: "#ffffff",
                     weight: isSelected ? 4 : 2,
-                    fillColor: getRiskColor(location.riskScore),
+                    fillColor: getRiskColor(forecast.riskScore),
                     fillOpacity: 0.9,
                     className: isSelected
                       ? "risk-marker-selected"
@@ -140,9 +144,9 @@ export default function MapContainer({
                     <div>
                       <strong>{location.name}</strong>
                       <br />
-                      {location.riskLevel} Risk
+                      {forecast.riskLevel} Risk
                       <br />
-                      Score: {location.riskScore}/100
+                      Score: {forecast.riskScore}/100
                     </div>
                   </Popup>
                 </CircleMarker>
@@ -154,7 +158,10 @@ export default function MapContainer({
           )}
 
           {layers.weatherConditions && (
-            <WeatherLabelLayer locations={locations} />
+            <WeatherLabelLayer
+              locations={locations}
+              forecastWindow={forecastWindow}
+            />
           )}
         </LeafletMap>
 
@@ -169,11 +176,13 @@ export default function MapContainer({
         </div>
 
         <MapToolbar
-          isLayersOpen={isLayersOpen}
+          activePanel={activePanel}
           layers={layers}
-          onToggleLayers={() => setIsLayersOpen((isOpen) => !isOpen)}
+          forecastWindow={forecastWindow}
+          onTogglePanel={togglePanel}
           onToggleLayer={toggleLayer}
-          onCloseLayers={closeLayers}
+          onChangeForecast={onChangeForecast}
+          onClosePanel={closePanel}
         />
       </div>
 

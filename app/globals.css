@@ -98,7 +98,11 @@ input {
 }
 
 .risk-marker {
-  transition: filter 160ms ease;
+  transition: fill 240ms ease, stroke 240ms ease, filter 160ms ease;
+}
+
+.risk-radius {
+  transition: fill 280ms ease, stroke 280ms ease, fill-opacity 280ms ease;
 }
 
 .risk-marker-selected {

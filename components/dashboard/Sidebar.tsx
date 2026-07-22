@@ -1,4 +1,5 @@
-import type { WildfireLocation } from "@/types/wildfire";
+import type { ForecastWindow, WildfireLocation } from "@/types/wildfire";
+import { getForecastDetail } from "@/lib/forecast";
 import {
   Building2,
   Droplets,
@@ -16,9 +17,12 @@ import type { LucideIcon } from "lucide-react";
 
 type SidebarProps = {
   location: WildfireLocation;
+  forecastWindow: ForecastWindow;
 };
 
-export default function Sidebar({ location }: SidebarProps) {
+export default function Sidebar({ location, forecastWindow }: SidebarProps) {
+  const forecast = location.forecasts[forecastWindow];
+
   return (
     <aside className="overflow-hidden rounded-xl border border-white/[0.08] bg-[#090e13] shadow-[0_18px_55px_rgba(0,0,0,0.2)]">
       <div className="border-b border-white/[0.08] p-5">
@@ -39,12 +43,12 @@ export default function Sidebar({ location }: SidebarProps) {
 
       <div className="space-y-5 p-5">
         <div className="grid grid-cols-[minmax(0,1fr)_130px] gap-3">
-          <div className="rounded-lg border border-red-400/15 bg-red-600/90 p-4 shadow-[0_10px_30px_rgba(220,38,38,0.12)]">
+          <div className="rounded-lg border border-red-400/15 bg-red-600/90 p-4 shadow-[0_10px_30px_rgba(220,38,38,0.12)] transition-colors duration-300">
             <p className="text-2xl font-bold tracking-tight">
-              {location.riskLevel} Risk
+              {forecast.riskLevel} Risk
             </p>
             <p className="mt-1 text-base font-medium">
-              Score: {location.riskScore} / 100
+              Score: {forecast.riskScore} / 100
             </p>
           </div>
 
@@ -55,27 +59,34 @@ export default function Sidebar({ location }: SidebarProps) {
               {location.trend}
             </p>
             <p className="mt-2 text-[11px] leading-4 text-white/40">
-              {location.predictionWindow}
+              {getForecastDetail(forecastWindow)}
             </p>
           </div>
         </div>
 
         <SidebarSection title="Top Contributing Factors">
           <div className="space-y-3 text-sm text-white/65">
-            <ConditionRow icon={Droplets} label="Low Humidity" value={`${location.humidity}%`} />
-            <ConditionRow icon={Wind} label="High Wind Speed" value={`${location.windSpeed} mph`} />
-            <ConditionRow icon={Leaf} label="Dry Vegetation" value={`${location.vegetationDryness}%`} />
-            <ConditionRow icon={Thermometer} label="High Temperature" value={`${location.temperature}°F`} />
+            <ConditionRow icon={Droplets} label="Low Humidity" value={`${forecast.humidity}%`} />
+            <ConditionRow icon={Wind} label="High Wind Speed" value={`${forecast.windSpeed} mph`} />
+            <ConditionRow icon={Leaf} label="Dry Vegetation" value={`${forecast.vegetationDryness}%`} />
+            <ConditionRow icon={Thermometer} label="High Temperature" value={`${forecast.temperature}°F`} />
           </div>
         </SidebarSection>
 
-        <SidebarSection title="Current Conditions" divided>
+        <SidebarSection
+          title={
+            forecastWindow === "current"
+              ? "Current Conditions"
+              : "Forecast Conditions"
+          }
+          divided
+        >
           <div className="grid grid-cols-6 gap-2.5">
-            <ConditionCard className="col-span-2" icon={Thermometer} label="Temperature" value={`${location.temperature}°F`} />
-            <ConditionCard className="col-span-2" icon={Droplets} label="Humidity" value={`${location.humidity}%`} />
-            <ConditionCard className="col-span-2" icon={Wind} label="Wind Speed" value={`${location.windSpeed} mph`} />
+            <ConditionCard className="col-span-2" icon={Thermometer} label="Temperature" value={`${forecast.temperature}°F`} />
+            <ConditionCard className="col-span-2" icon={Droplets} label="Humidity" value={`${forecast.humidity}%`} />
+            <ConditionCard className="col-span-2" icon={Wind} label="Wind Speed" value={`${forecast.windSpeed} mph`} />
             <ConditionCard className="col-span-3" icon={Gauge} label="Drought Level" value={location.droughtLevel} />
-            <ConditionCard className="col-span-3" icon={Leaf} label="Vegetation Dryness" value={`${location.vegetationDryness}%`} />
+            <ConditionCard className="col-span-3" icon={Leaf} label="Vegetation Dryness" value={`${forecast.vegetationDryness}%`} />
           </div>
         </SidebarSection>
 
@@ -97,7 +108,7 @@ export default function Sidebar({ location }: SidebarProps) {
             <div className="text-right">
               <p className="text-white/40">Model Confidence</p>
               <p className="mt-1.5 font-bold text-green-400">
-                {location.modelConfidence}%
+                {forecast.modelConfidence}%
               </p>
             </div>
           </div>

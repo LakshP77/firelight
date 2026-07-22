@@ -3,18 +3,21 @@
 import { useEffect } from "react";
 import { Bookmark, Clock3, House, Layers3 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import type { ForecastWindow } from "@/types/wildfire";
+import ForecastControlPanel from "./ForecastControlPanel";
 import LayerControlPanel from "./LayerControlPanel";
 
 type ToolbarItem = {
+  id: "overview" | "layers" | "time" | "saved";
   label: string;
   icon: LucideIcon;
 };
 
 const items: ToolbarItem[] = [
-  { label: "Overview", icon: House },
-  { label: "Layers", icon: Layers3 },
-  { label: "Time", icon: Clock3 },
-  { label: "Saved", icon: Bookmark },
+  { id: "overview", label: "Overview", icon: House },
+  { id: "layers", label: "Layers", icon: Layers3 },
+  { id: "time", label: "Time", icon: Clock3 },
+  { id: "saved", label: "Saved", icon: Bookmark },
 ];
 
 export type LayerVisibility = {
@@ -24,35 +27,41 @@ export type LayerVisibility = {
   weatherConditions: boolean;
 };
 
+export type MapToolbarPanel = "layers" | "time" | null;
+
 type MapToolbarProps = {
-  isLayersOpen: boolean;
+  activePanel: MapToolbarPanel;
   layers: LayerVisibility;
-  onToggleLayers: () => void;
+  forecastWindow: ForecastWindow;
+  onTogglePanel: (panel: Exclude<MapToolbarPanel, null>) => void;
   onToggleLayer: (layer: keyof LayerVisibility) => void;
-  onCloseLayers: () => void;
+  onChangeForecast: (window: ForecastWindow) => void;
+  onClosePanel: () => void;
 };
 
 export default function MapToolbar({
-  isLayersOpen,
+  activePanel,
   layers,
-  onToggleLayers,
+  forecastWindow,
+  onTogglePanel,
   onToggleLayer,
-  onCloseLayers,
+  onChangeForecast,
+  onClosePanel,
 }: MapToolbarProps) {
   useEffect(() => {
-    if (!isLayersOpen) {
+    if (!activePanel) {
       return;
     }
 
     function handleKeyDown(event: KeyboardEvent) {
       if (event.key === "Escape") {
-        onCloseLayers();
+        onClosePanel();
       }
     }
 
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [isLayersOpen, onCloseLayers]);
+  }, [activePanel, onClosePanel]);
 
   return (
     <div className="absolute left-4 top-1/2 z-[500] flex -translate-y-1/2 items-center gap-3 sm:left-5">
@@ -60,21 +69,21 @@ export default function MapToolbar({
         aria-label="Map tools"
         className="overflow-hidden rounded-xl border border-white/[0.1] bg-[#0a0f14]/95 p-1 shadow-2xl backdrop-blur-md"
       >
-        {items.map((item, index) => {
+        {items.map((item) => {
           const Icon = item.icon;
-          const isLayersButton = item.label === "Layers";
-          const isActive = isLayersButton
-            ? isLayersOpen
-            : index === 0 && !isLayersOpen;
+          const panelId =
+            item.id === "layers" || item.id === "time" ? item.id : null;
+          const isActive =
+            item.id === activePanel || (item.id === "overview" && !activePanel);
 
           return (
             <button
-              key={item.label}
+              key={item.id}
               type="button"
               aria-label={item.label}
-              aria-expanded={isLayersButton ? isLayersOpen : undefined}
-              aria-controls={isLayersButton ? "map-layer-panel" : undefined}
-              onClick={isLayersButton ? onToggleLayers : undefined}
+              aria-expanded={panelId ? panelId === activePanel : undefined}
+              aria-controls={panelId ? `map-${panelId}-panel` : undefined}
+              onClick={panelId ? () => onTogglePanel(panelId) : undefined}
               className={`flex w-[64px] flex-col items-center gap-1.5 rounded-lg px-2 py-3 text-[11px] font-medium transition focus-visible:outline-2 focus-visible:outline-orange-500 ${
                 isActive
                   ? "bg-orange-500/10 text-orange-500"
@@ -88,11 +97,17 @@ export default function MapToolbar({
         })}
       </nav>
 
-      {isLayersOpen && (
-        <div id="map-layer-panel">
-          <LayerControlPanel
-            layers={layers}
-            onToggleLayer={onToggleLayer}
+      {activePanel === "layers" && (
+        <div id="map-layers-panel">
+          <LayerControlPanel layers={layers} onToggleLayer={onToggleLayer} />
+        </div>
+      )}
+
+      {activePanel === "time" && (
+        <div id="map-time-panel">
+          <ForecastControlPanel
+            forecastWindow={forecastWindow}
+            onChangeForecast={onChangeForecast}
           />
         </div>
       )}

@@ -1,22 +1,27 @@
 export type RiskLevel = "Low" | "Moderate" | "High" | "Extreme";
 
-export type WildfireLocation = {
-  id: string;
-  name: string;
-  latitude: number;
-  longitude: number;
+export type ForecastWindow = "current" | "6h" | "12h" | "24h" | "48h";
+
+export type WildfireForecast = {
   riskScore: number;
   riskLevel: RiskLevel;
   temperature: number;
   humidity: number;
   windSpeed: number;
   vegetationDryness: number;
+  modelConfidence: number;
+};
+
+export type WildfireLocation = {
+  id: string;
+  name: string;
+  latitude: number;
+  longitude: number;
+  forecasts: Record<ForecastWindow, WildfireForecast>;
   droughtLevel: string;
   trend: string;
-  predictionWindow: string;
   recentFires: number;
   nearestFireStation: string;
   populationAtRisk: number;
-  modelConfidence: number;
   lastUpdated: string;
 };
