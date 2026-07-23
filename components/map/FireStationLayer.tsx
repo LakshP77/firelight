@@ -34,7 +34,7 @@ export default function FireStationLayer({ selectedLocation }: { selectedLocatio
         pathOptions={{ color: "#f97316", opacity: 0.3, weight: 1.5, dashArray: "5 7" }}
       />
       {stationMarkers.map(({ station, isNearest, icon }) => (
-        <Marker key={station.id} position={[station.latitude, station.longitude]} icon={icon} zIndexOffset={isNearest ? 30 : 10}>
+        <Marker key={station.id} position={[station.latitude, station.longitude]} icon={icon} alt={`${station.name}${isNearest ? ", nearest station" : ""}`} zIndexOffset={isNearest ? 30 : 10}>
           <Popup>
             <div className="min-w-44 text-xs leading-5">
               <strong className="text-sm">{station.name}</strong>

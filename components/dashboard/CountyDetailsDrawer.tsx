@@ -4,7 +4,7 @@ import { useEffect, useRef } from "react";
 import type { RefObject } from "react";
 import { createPortal } from "react-dom";
 import { X } from "lucide-react";
-import { countyDetails } from "@/data/countyDetails";
+import { getCountyDetails } from "@/services/countyService";
 import { getForecastDetail } from "@/lib/forecast";
 import type { ForecastWindow, WildfireLocation } from "@/types/wildfire";
 import { getFireStationsForLocation } from "@/services/fireStationService";
@@ -29,7 +29,7 @@ const FOCUSABLE_SELECTOR = "button:not([disabled]), textarea:not([disabled]), [h
 export default function CountyDetailsDrawer({ isOpen, location, forecastWindow, onChangeForecast, onClose, triggerRef }: CountyDetailsDrawerProps) {
   const drawerRef = useRef<HTMLElement>(null);
   const forecast = location.forecasts[forecastWindow];
-  const details = countyDetails[location.id];
+  const details = getCountyDetails(location.id);
   const nearbyStations = getFireStationsForLocation(location);
 
   useEffect(() => {
@@ -93,7 +93,7 @@ export default function CountyDetailsDrawer({ isOpen, location, forecastWindow, 
             <CountyStatisticsSection statistics={details.statistics} />
             <FireStationsSection stations={nearbyStations} />
             <WeatherHistorySection points={details.weatherHistory} />
-          </> : <p className="rounded-lg border border-white/[0.08] p-4 text-xs text-white/45">Detailed county context is not available for this location.</p>}
+          </> : <><CountyStatisticsSection statistics={null} /><p className="rounded-lg border border-white/[0.08] p-4 text-xs text-white/45">Additional county context is not available for this location.</p></>}
           <PredictionTimelineSection location={location} forecastWindow={forecastWindow} onChangeForecast={onChangeForecast} />
           <OperationalNotesSection locationId={location.id} />
         </div>

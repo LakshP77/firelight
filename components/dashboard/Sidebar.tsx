@@ -1,7 +1,9 @@
 import type { ForecastWindow, WildfireLocation } from "@/types/wildfire";
 import { getForecastDetail } from "@/lib/forecast";
 import { createRiskExplanations } from "@/utils/createRiskExplanations";
+import { getNearestFireStation } from "@/services/fireStationService";
 import RiskTrendChart from "./RiskTrendChart";
+import CountySnapshot from "./CountySnapshot";
 import {
   ArrowRight,
   Building2,
@@ -39,6 +41,7 @@ export default function Sidebar({
     forecast,
     location.droughtLevel,
   );
+  const nearestFireStation = getNearestFireStation(location);
 
   return (
     <aside className="overflow-hidden rounded-xl border border-white/[0.08] bg-[#090e13] shadow-[0_18px_55px_rgba(0,0,0,0.2)]">
@@ -144,10 +147,12 @@ export default function Sidebar({
         <SidebarSection title="Area Context" divided>
           <div className="space-y-3 text-sm text-white/65">
             <ConditionRow icon={Flame} label="Recent Fires (10 yrs)" value={location.recentFires.toString()} />
-            <ConditionRow icon={Building2} label="Nearest Fire Station" value={location.nearestFireStation} />
+            <ConditionRow icon={Building2} label="Nearest Fire Station" value={`${nearestFireStation.distanceToSelectedArea} mi ${nearestFireStation.directionFromSelectedArea}`} />
             <ConditionRow icon={Users} label="Population at Risk" value={`~${location.populationAtRisk.toLocaleString()}`} />
           </div>
         </SidebarSection>
+
+        <CountySnapshot locationId={location.id} />
 
         <section className="border-t border-white/[0.08] pt-5">
           <div className="flex justify-between gap-4 text-xs">

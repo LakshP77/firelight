@@ -6,12 +6,12 @@ export type WeatherHistoryPoint = {
 };
 
 export type CountyStatistics = {
-  population: number;
-  landAreaSquareMiles: number;
-  recentFires: number;
-  dominantVegetation: string;
-  averageElevationFeet: number;
-  annualPrecipitationInches: number;
+  population: number | null;
+  landAreaSquareMiles: number | null;
+  recentFires: number | null;
+  dominantVegetation: string | null;
+  averageElevationFeet: number | null;
+  averageAnnualRainfallInches: number | null;
 };
 
 export type CountyDetails = {
